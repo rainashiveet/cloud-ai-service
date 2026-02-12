@@ -1,0 +1,29 @@
+  "Machine Learning is a subset of artificial intelligence that enables systems to learn and improve from experience without being explicitly programmed. It focuses on developing algorithms that can access data, learn from it, and make predictions or decisions.",
+        
+        "Deep Learning is a specialized branch of machine learning that uses neural networks with multiple layers (deep neural networks). These networks can automatically learn hierarchical representations of data, making them highly effective for tasks like image recognition and natural language processing.",
+        
+        "Natural Language Processing (NLP) is a field of AI that gives machines the ability to read, understand, and derive meaning from human languages. NLP combines computational linguistics with machine learning to process and analyze large amounts of natural language data.",
+        
+        "Vector databases are specialized database systems designed to store and query high-dimensional vectors efficiently. They are essential for applications like semantic search, recommendation systems, and retrieval-augmented generation (RAG) applications.",
+        
+        "FAISS (Facebook AI Similarity Search) is a library developed by Meta for efficient similarity search and clustering of dense vectors. It provides algorithms that search in sets of vectors of any size, up to ones that possibly do not fit in RAM.",
+        
+        "Docker is a platform for developing, shipping, and running applications in containers. Containers are lightweight, standalone packages that include everything needed to run an application: code, runtime, system tools, libraries, and settings.",
+        
+        "FastAPI is a modern, fast web framework for building APIs with Python 3.7+ based on standard Python type hints. It provides automatic API documentation, data validation, and asynchronous support out of the box.",
+        
+        "Embedding models convert text into numerical vectors that capture semantic meaning. Similar texts have similar embeddings, enabling semantic search and other NLP tasks. Popular models include BERT, sentence-transformers, and OpenAI embeddings.",
+        
+        "Retrieval-Augmented Generation (RAG) is an AI framework that enhances responses by retrieving relevant information from a knowledge base before generating answers. It combines the benefits of retrieval-based and generation-based approaches.",
+        
+        "Containerization is the process of packaging an application with all its dependencies into a container image. This ensures the application runs consistently across different computing environments, from development to production.",
+        
+        "Microservices architecture is an approach where applications are built as a collection of loosely coupled, independently deployable services. Each service handles a specific business function and communicates with others through APIs.",
+        
+        "API (Application Programming Interface) is a set of rules and protocols that allows different software applications to communicate with each other. REST APIs use HTTP methods like GET, POST, PUT, DELETE to perform operations on resources.",
+        
+        "Cloud computing delivers computing services over the internet, including servers, storage, databases, networking, software, and analytics. It offers faster innovation, flexible resources, and economies of scale.",
+        
+        "CI/CD (Continuous Integration/Continuous Deployment) is a set of practices that automate the building, testing, and deployment of applications. It helps teams deliver code changes more frequently and reliably.",
+        
+        "Redis is an open-source, in-memory data structure store used as a database, cache, message broker, and streaming engine. It supports various data structures and provides high performance for real-time applications."

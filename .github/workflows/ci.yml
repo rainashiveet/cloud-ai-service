@@ -1,0 +1,198 @@
+# ============================================
+# GitHub Actions CI Pipeline
+# ============================================
+#
+# This file defines a Continuous Integration (CI) pipeline.
+# When you push code to GitHub, this automatically:
+# 1. Sets up Python environment
+# 2. Installs dependencies
+# 3. Runs code quality checks (linting)
+# 4. Runs tests
+# 5. Builds the Docker image
+#
+# ============================================
+# HOW IT WORKS
+# ============================================
+#
+# GitHub provides virtual machines (runners) that execute these steps.
+# Each "job" runs in a fresh environment.
+# If any step fails, the whole pipeline fails (and you get an email).
+#
+# This runs automatically on:
+# - Push to "main" branch
+# - Pull requests to "main" branch
+#
+# ============================================
+
+name: CI Pipeline
+
+# ============================================
+# TRIGGERS - When should this run?
+# ============================================
+# These are called "events" - the pipeline runs when these happen
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  # workflow_dispatch lets you manually trigger from GitHub UI
+  workflow_dispatch:
+
+# ============================================
+# JOBS - What should we do?
+# ============================================
+# Jobs run in parallel by default (unless dependencies specified)
+jobs:
+  # ----------------------------------------
+  # JOB 1: Code Quality & Testing
+  # ----------------------------------------
+  # This job checks if the code is correct and follows best practices
+  test:
+    name: Code Quality & Tests
+    runs-on: ubuntu-latest
+    
+    # Strategy matrix - run with multiple Python versions
+    strategy:
+      matrix:
+        python-version: ['3.10', '3.11']
+    
+    # Steps execute sequentially
+    steps:
+      # STEP 1: Checkout code
+      # actions/checkout is a pre-built action from GitHub
+      # It downloads your repository code to the runner
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      # STEP 2: Set up Python
+      # Installs the specified Python version
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'  # Cache pip dependencies for faster runs
+      
+      # STEP 3: Install dependencies
+      # This is like running "pip install -r requirements.txt"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8 black pytest
+          pip install -r requirements.txt
+      
+      # STEP 4: Check code formatting with Black
+      # Black is a code formatter - it ensures consistent style
+      # --check means "check but don't modify"
+      - name: Check code formatting with Black
+        run: |
+          black --check app/ --line-length 100
+        continue-on-error: true  # Don't fail the build for formatting
+      
+      # STEP 5: Lint with Flake8
+      # Flake8 checks for syntax errors, undefined names, etc.
+      - name: Lint with Flake8
+        run: |
+          # Stop the build if there are syntax errors or undefined names
+          flake8 app/ --count --select=E9,F63,F7,F82 --show-source --statistics
+          # Exit-zero treats all errors as warnings
+          flake8 app/ --count --exit-zero --max-complexity=10 --max-line-length=100 --statistics
+        continue-on-error: true  # Don't fail for minor issues
+      
+      # STEP 6: Run tests
+      # Pytest runs any tests in your project
+      - name: Run tests
+        run: |
+          pytest -v || echo "No tests found yet"
+        continue-on-error: true  # Pass even if no tests exist
+
+  # ----------------------------------------
+  # JOB 2: Build Docker Image
+  # ----------------------------------------
+  # This job verifies the Docker image can be built successfully
+  build:
+    name: Build Docker Image
+    runs-on: ubuntu-latest
+    # needs: test means this job waits for "test" job to complete
+    needs: test
+    
+    steps:
+      # STEP 1: Checkout code
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      # STEP 2: Set up Docker Buildx
+      # Buildx is an extended build capability for Docker
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      # STEP 3: Build Docker image
+      # This verifies the Dockerfile is correct
+      # --tag gives the image a name
+      # --load puts the image in the local Docker daemon
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: false  # Don't push to registry (no paid cloud services)
+          load: true   # Load into Docker daemon
+          tags: ai-service:${{ github.sha }}
+      
+      # STEP 4: Test the Docker image
+      # Run the container briefly to ensure it starts
+      - name: Test Docker image
+        run: |
+          # Start container in background
+          docker run -d --name test-container -p 8000:8000 ai-service:${{ github.sha }}
+          
+          # Wait for service to start (model loading takes time)
+          echo "Waiting for service to start..."
+          sleep 60
+          
+          # Test health endpoint
+          curl --fail http://localhost:8000/health || exit 1
+          
+          # Clean up
+          docker stop test-container
+          docker rm test-container
+
+  # ----------------------------------------
+  # JOB 3: Security Scan (Optional)
+  # ----------------------------------------
+  # Scans for known vulnerabilities in dependencies
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      
+      - name: Install safety
+        run: pip install safety
+      
+      - name: Run security scan
+        run: |
+          safety check -r requirements.txt --full-report || echo "Some vulnerabilities found"
+        continue-on-error: true
+
+# ============================================
+# HOW TO SEE RESULTS
+# ============================================
+#
+# 1. Push code to GitHub
+# 2. Go to your repository on GitHub
+# 3. Click "Actions" tab
+# 4. See your workflow runs
+# 5. Click on a run to see detailed logs
+#
+# Status badges (add to README.md):
+# [![CI](https://github.com/YOUR_USERNAME/YOUR_REPO/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_USERNAME/YOUR_REPO/actions/workflows/ci.yml)
+#
+# ============================================

@@ -1,0 +1,20 @@
+# FastAPI and ASGI server
+fastapi==0.109.2
+uvicorn[standard]==0.27.1
+pydantic==2.6.1
+
+# AI/ML libraries
+faiss-cpu==1.8.0
+sentence-transformers==2.3.1
+numpy==1.26.4
+
+# For async Redis caching (optional but recommended)
+redis==5.0.1
+
+# HTTP client for API calls
+httpx==0.26.0
+
+# Testing and linting
+pytest==8.0.0
+flake8==7.0.0
+black==24.1.1

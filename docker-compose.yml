@@ -1,0 +1,162 @@
+# ============================================
+# Docker Compose Configuration
+# ============================================
+#
+# Docker Compose lets you run multiple containers together as a "stack"
+# Instead of typing long "docker run" commands, you define everything here
+# Then just run: docker-compose up
+#
+# This file defines:
+# 1. AI Service (our FastAPI application)
+# 2. Redis (optional caching layer)
+#
+# ============================================
+# UNDERSTANDING THE STRUCTURE
+# ============================================
+#
+# version: Docker Compose file format version
+# services: The containers to run
+#   - Each service is a separate container
+#   - They can communicate with each other by name
+#
+# ============================================
+
+version: '3.8'
+
+services:
+  # ------------------------------------------
+  # AI SERVICE - Our FastAPI Application
+  # ------------------------------------------
+  # This is the main service that runs our AI inference API
+  ai-service:
+    # build: How to build this service's image
+    # "." means use the Dockerfile in the current directory
+    build: .
+    
+    # container_name: Friendly name for the container
+    # Makes it easier to identify when running "docker ps"
+    container_name: cloud-ai-service
+    
+    # ports: Map ports between host and container
+    # Format: "HOST_PORT:CONTAINER_PORT"
+    # "8000:8000" means port 8000 on your computer maps to port 8000 in container
+    ports:
+      - "8000:8000"
+    
+    # environment: Environment variables passed to the container
+    # These can be read by your Python code using os.environ.get()
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOG_LEVEL=info
+      # Redis connection (service name 'redis' is automatically resolved)
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    
+    # volumes: Mount directories from host into container
+    # Useful for development - changes on your computer reflect in container
+    # Format: "HOST_PATH:CONTAINER_PATH"
+    # Commented out for production, uncomment for development:
+    # volumes:
+    #   - ./app:/app/app
+    
+    # depends_on: This service depends on another service
+    # Redis will start before ai-service
+    depends_on:
+      redis:
+        condition: service_healthy
+    
+    # restart: What to do if the container crashes
+    # "unless-stopped" = always restart unless manually stopped
+    restart: unless-stopped
+    
+    # healthcheck: How Docker knows if this container is healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s      # Check every 30 seconds
+      timeout: 10s       # Wait 10 seconds for response
+      retries: 3         # Try 3 times before marking unhealthy
+      start_period: 60s  # Wait 60s before first check (model loading takes time)
+
+  # ------------------------------------------
+  # REDIS - Caching Layer (Optional)
+  # ------------------------------------------
+  # Redis is an in-memory data store, often used for caching
+  # In our case, it can cache query results for faster responses
+  redis:
+    # image: Use a pre-built image from Docker Hub
+    # No need for a Dockerfile - Redis provides official images
+    image: redis:7-alpine
+    
+    container_name: cloud-ai-redis
+    
+    # ports: Expose Redis port (optional - mainly for debugging)
+    # Comment out if you don't need external access to Redis
+    ports:
+      - "6379:6379"
+    
+    # volumes: Persist Redis data even if container restarts
+    # Data is stored in a named volume called "redis_data"
+    volumes:
+      - redis_data:/data
+    
+    # command: Override default Redis command
+    # --appendonly yes: Enable persistence (saves data to disk)
+    command: redis-server --appendonly yes
+    
+    # healthcheck: Check if Redis is responding
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    
+    restart: unless-stopped
+
+# ------------------------------------------
+# VOLUMES - Persistent Data Storage
+# ------------------------------------------
+# Named volumes persist data even if containers are removed
+# They're stored in a special Docker directory on your computer
+volumes:
+  redis_data:
+    driver: local
+
+# ============================================
+# HOW TO USE DOCKER COMPOSE
+# ============================================
+#
+# Start all services:
+#   docker-compose up
+#
+# Start in background (detached mode):
+#   docker-compose up -d
+#
+# Stop all services:
+#   docker-compose down
+#
+# Stop and remove volumes (clean slate):
+#   docker-compose down -v
+#
+# View logs:
+#   docker-compose logs
+#   docker-compose logs ai-service  # Just AI service logs
+#   docker-compose logs -f          # Follow logs (like tail -f)
+#
+# Rebuild after code changes:
+#   docker-compose build
+#   docker-compose up --build       # Build and start in one command
+#
+# ============================================
+# NETWORKING EXPLAINED
+# ============================================
+#
+# Docker Compose automatically creates a network for your services.
+# Services can communicate with each other using their service names:
+# - ai-service can reach Redis at hostname "redis"
+# - Redis can reach ai-service at hostname "ai-service"
+#
+# From your computer (host), you access:
+# - AI Service: http://localhost:8000
+# - Redis: localhost:6379
+#
+# ============================================
