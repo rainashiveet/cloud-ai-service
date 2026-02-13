@@ -140,21 +140,38 @@ jobs:
       
       # STEP 4: Test the Docker image
       # Run the container briefly to ensure it starts
-      - name: Test Docker image
+            - name: Test Docker image
         run: |
-          # Start container in background
+          echo "Starting container..."
           docker run -d --name test-container -p 8001:8000 ai-service:${{ github.sha }}
-          
-          # Wait for service to start (model loading takes time)
-          echo "Waiting for service to start..."
-          sleep 60
-          
-          # Test health endpoint
-          curl --fail http://localhost:8001/docs || exit 1
-          
-          # Clean up
-          docker stop test-container
-          docker rm test-container
+
+          echo "Waiting for service to become healthy..."
+
+          for i in {1..30}; do
+            if curl -f http://localhost:8001/health; then
+              echo "Service is healthy"
+
+              docker stop test-container
+              docker rm test-container
+              exit 0
+            fi
+
+            echo "Waiting..."
+            sleep 2
+          done
+
+          echo "Service failed to start"
+          echo "Container status:"
+          docker ps -a
+
+          echo "Container logs:"
+          docker logs test-container
+
+          docker stop test-container || true
+          docker rm test-container || true
+          exit 1
+
+
 
   # ----------------------------------------
   # JOB 3: Security Scan (Optional)
