@@ -71,7 +71,7 @@ services:
     
     # healthcheck: How Docker knows if this container is healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
       interval: 30s      # Check every 30 seconds
       timeout: 10s       # Wait 10 seconds for response
       retries: 3         # Try 3 times before marking unhealthy
