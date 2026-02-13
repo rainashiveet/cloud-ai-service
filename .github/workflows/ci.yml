@@ -140,8 +140,8 @@ jobs:
       
       # STEP 4: Test the Docker image
       # Run the container briefly to ensure it starts
-            - name: Test Docker image
-        run: |
+      - name: Test Docker image
+      run: |
           echo "Starting container..."
           docker run -d --name test-container -p 8001:8000 ai-service:${{ github.sha }}
 
