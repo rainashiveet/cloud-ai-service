@@ -110,7 +110,7 @@ USER appuser
 # Note: In Docker, we use 0.0.0.0 instead of localhost
 # localhost inside container = container itself, not accessible from outside
 # 0.0.0.0 = all interfaces, accessible from outside the container
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8001"]
 
 # ============================================
 # HOW TO BUILD AND RUN
