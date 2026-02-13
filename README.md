@@ -247,7 +247,7 @@ pip install -r requirements.txt
 cd app
 
 # Start the server
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+uvicorn main:app --reload --host 0.0.0.0 --port 8001
 
 # You should see:
 # INFO:     Application startup complete.
@@ -259,15 +259,21 @@ Open your browser or use curl:
 
 ```bash
 # Health check
-curl http://localhost:8000/health
+curl http://localhost:8001/health
 
 # Query endpoint
-curl -X POST http://localhost:8000/query \
+curl -X POST http://localhost:8001/query \
   -H "Content-Type: application/json" \
-  -d '{"query": "What is machine learning?"}'
+  -d '{"query":"What is machine learning?"}'
+
 ```
 
 ---
+
+## ⚠️ Important Port Note
+
+The application listens on port **8000 inside the container**, and is exposed on
+port **8001 on your machine**.
 
 ## Running with Docker
 
@@ -280,7 +286,7 @@ An image is a blueprint. Think of it like a recipe - it contains all instruction
 A container is a running instance of an image. Like the actual dish cooked from the recipe.
 
 **What is a Port?**
-A port is like a door number. Port 8000 means "door 8000" on your computer.
+A port is like a door number. Port 8001 means "door 8001" on your computer.
 
 ### Building and Running
 
@@ -306,14 +312,14 @@ docker run -p 8000:8000 ai-service
 # - Second 8000: port inside the container
 # - Maps them together so you can access the service
 
-# The service is now running at http://localhost:8000
+# The service is now running at http://localhost:8001
 ```
 
 ### Running in Background
 
 ```bash
 # Add -d flag to run in background (detached mode)
-docker run -d -p 8000:8000 ai-service
+docker run -d -p 8001:8000 ai-service
 
 # View running containers
 docker ps
@@ -389,7 +395,7 @@ docker-compose up --build
 
 ### Interactive Documentation (Swagger UI)
 
-Open http://localhost:8000/docs in your browser. You'll see:
+Open http://localhost:8001/docs in your browser. You'll see:
 
 - All available endpoints
 - Request/response schemas
@@ -403,7 +409,7 @@ Check if the service is healthy.
 
 **Request:**
 ```bash
-curl http://localhost:8000/health
+curl http://localhost:8001/health
 ```
 
 **Response:**
@@ -616,7 +622,7 @@ docker logs <container_id>
 
 3. **Check health endpoint**
    ```bash
-   curl http://localhost:8000/health
+   curl http://localhost:8001/health
    ```
 
 ---
