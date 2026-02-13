@@ -143,14 +143,14 @@ jobs:
       - name: Test Docker image
         run: |
           # Start container in background
-          docker run -d --name test-container -p 8000:8000 ai-service:${{ github.sha }}
+          docker run -d --name test-container -p 8001:8000 ai-service:${{ github.sha }}
           
           # Wait for service to start (model loading takes time)
           echo "Waiting for service to start..."
           sleep 60
           
           # Test health endpoint
-          curl --fail http://localhost:8000/docs || exit 1
+          curl --fail http://localhost:8001/docs || exit 1
           
           # Clean up
           docker stop test-container
