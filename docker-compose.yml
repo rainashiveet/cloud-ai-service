@@ -41,7 +41,7 @@ services:
     # Format: "HOST_PORT:CONTAINER_PORT"
     # "8000:8000" means port 8000 on your computer maps to port 8000 in container
     ports:
-      - "8000:8000"
+      - "8001:8000"
     
     # environment: Environment variables passed to the container
     # These can be read by your Python code using os.environ.get()
