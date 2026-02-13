@@ -273,7 +273,7 @@ curl -X POST http://localhost:8001/query \
 ## ⚠️ Important Port Note
 
 The application listens on port **8000 inside the container**, and is exposed on
-port **8001 on your machine**.
+port **8001 on your  machine**.
 
 ## Running with Docker
 
