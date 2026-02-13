@@ -196,8 +196,8 @@ docker-compose up
 # (First run takes ~2-3 minutes to download model)
 
 # 4. Open in browser
-# API: http://localhost:8000
-# Swagger UI: http://localhost:8000/docs
+# API: http://localhost:8001
+# Swagger UI: http://localhost:8001/docs
 ```
 
 ---
@@ -305,7 +305,7 @@ docker build -t ai-service .
 # - Creates a new image called "ai-service"
 
 # Run a container from the image
-docker run -p 8000:8000 ai-service
+docker run -p 8001:8000 ai-service
 
 # What -p 8000:8000 means:
 # - First 8000: port on YOUR computer
@@ -429,7 +429,7 @@ Submit a query for AI-powered response.
 
 **Request:**
 ```bash
-curl -X POST http://localhost:8000/query \
+curl -X POST http://localhost:8001/query \
   -H "Content-Type: application/json" \
   -d '{"query": "What is machine learning?", "k": 3}'
 ```
